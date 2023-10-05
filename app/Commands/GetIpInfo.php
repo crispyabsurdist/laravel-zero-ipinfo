@@ -2,8 +2,8 @@
 
 namespace App\Commands;
 
-use LaravelZero\Framework\Commands\Command;
 use function Termwind\{render};
+use LaravelZero\Framework\Commands\Command;
 
 class GetIpInfo extends Command
 {
@@ -14,6 +14,9 @@ class GetIpInfo extends Command
 	{
 		$url = $this->argument('url');
 		$ip = gethostbyname($url);
+
+		// TODO: Validate URL with active or inactive status
+		// $this->runPingCommand($url);
 		$this->renderIpInfo($url, $ip);
 		$this->scanPorts($ip);
 	}
@@ -62,5 +65,17 @@ class GetIpInfo extends Command
 		} else {
 			return false;
 		}
+	}
+
+	protected function runPingCommand($url)
+	{
+		$output = shell_exec("ping -c 4 " . escapeshellarg($url));
+
+		render(<<<HTML
+			<div class='flex p-2 bg-slate-800'>
+				<span class='font-bold w-18'>Ping: </span>
+				<span class='flex-1 text-green-500'>Site Active {{ $output }}</span>
+			</div>
+		HTML);
 	}
 }
